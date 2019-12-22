@@ -1,4 +1,6 @@
-# History_Panel
+# History Panel
+
+[![GitHub license](https://img.shields.io/github/license/L0Lock/History_Panel)](https://github.com/L0Lock/History_Panel/blob/master/LICENSE) [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H818FHX)
 
 Brings back the «History» panel with all its history managment including the famous Undo & Redo buttons. But with my polish pass on top.
 
