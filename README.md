@@ -10,7 +10,7 @@ Made for Blender 2.81 and above.
 
 # Installation
 
-1. Download the python file [history_panel.py](history_panel.py) ;
+1. Download the python file [history_panel.py](history_panel.py) (right-click the link → Save As...);
 2. In Blender, go to The menu Edit → Preferences ;
 3. In the Preferences window, click the Install bottom on the top right corner ;
 4. Find the python file on your storage and click the blue Install Addon button ;
