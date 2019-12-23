@@ -63,13 +63,14 @@ class VIEW3D_PT_UndoRedo(bpy.types.Panel):
 # Prefs Addon
 
 def update_category(self, context):
-    is_panel = hasattr(bpy.types, 'VIEW3D_PT_UndoRedo')
+    # is_panel = hasattr(bpy.types, 'VIEW3D_PT_UndoRedo')
 
-    if is_panel:
-        try:
-            bpy.utils.unregister_class(VIEW3D_PT_UndoRedo)
-        except:
-            pass
+    # if is_panel:
+    #     try:
+    #         bpy.utils.unregister_class(VIEW3D_PT_UndoRedo)
+    #     except:
+    #         pass
+    bpy.utils.unregister_class(VIEW3D_PT_UndoRedo)
     VIEW3D_PT_UndoRedo.bl_category = self.category
     bpy.utils.register_class(VIEW3D_PT_UndoRedo)
 
