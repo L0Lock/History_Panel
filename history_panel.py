@@ -18,6 +18,7 @@
 import bpy
 from bpy.types import Operator, AddonPreferences
 from bpy.props import StringProperty, IntProperty, BoolProperty
+from bpy.utils import register_class
 
 bl_info = {
     "name": "History Panel",
@@ -32,26 +33,12 @@ bl_info = {
     "category": "3D View"
 }
 
-class AddonPrefs(AddonPreferences):
-    bl_idname = __name__
-    
-    PrefTab = StringProperty(
-        name = "Tab (default: \"Tool\")",
-        default = "Tooltest"
-    )
-    
-    def draw(self, context):
-        layout = self.layout
-        layout.label(text="In which tab should the History panel be placed?")
-        layout.prop(self, "PrefTab")
-
-
 class VIEW3D_PT_UndoRedo(bpy.types.Panel):
     bl_label = "History"
     bl_idname = "VIEW3D_PT_undo_redo"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'PrefTab' # 'Tool'
+    bl_category = 'Tool' # 'Tool'
     bl_options = {'DEFAULT_CLOSED'}
     
     @classmethod
@@ -72,6 +59,42 @@ class VIEW3D_PT_UndoRedo(bpy.types.Panel):
         col.label(text="Repeat:")
         col.operator("screen.repeat_last", icon='FILE_REFRESH')
         col.operator("screen.repeat_history", text="History...", icon='SORTTIME')
+        
+# Prefs Addon
+
+def update_category(self, context):
+    is_panel = hasattr(bpy.types, 'VIEW3D_PT_UndoRedo')
+
+    if is_panel:
+        try:
+            bpy.utils.unregister_class(VIEW3D_PT_UndoRedo)
+        except:
+            pass
+    VIEW3D_PT_UndoRedo.bl_category = self.category
+    bpy.utils.register_class(VIEW3D_PT_UndoRedo)
+
+class AddonPrefs(AddonPreferences):
+    bl_idname = __name__
+    
+#    PrefTab = StringProperty(
+#        name = "Tab (default: \"Tool\")",
+#        default = "Tooltest"
+#    )
+#    
+#    pref_tab = PrefTab
+#    
+#    def draw(self, context):
+#        layout = self.layout
+#        layout.label(text="In which tab should the History panel be placed?")
+#        layout.prop(self, "PrefTab")
+    category : StringProperty(description="Choose the target tab for the panel.",default="Tool",update=update_category)
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="In which tab should the History panel be placed in?")
+        layout.prop(self, "category")
+
+# Register
 
 classes = (
     VIEW3D_PT_UndoRedo,
@@ -79,14 +102,18 @@ classes = (
 )
 
 def register():
-    from bpy.utils import register_class
     for cls in classes:
-        register_class(cls)
+        try:
+            bpy.utils.register_class(cls)
+        except:
+            print(f"{cls.__name__} already registred")
+        
+    # Update Category
+    context = bpy.context
+    prefs = context.preferences.addons[__name__].preferences
+    update_category(prefs, context)
 
 def unregister():
-    from bpy.utils import unregister_class
-    for cls in reversed(classes):
-        unregister_class(cls)
-
-if __name__ == "__main__":
-    register()
+    for cls in classes:
+        if hasattr(bpy.types, cls.__name__):
+            bpy.utils.unregister_class(cls)
