@@ -24,7 +24,7 @@ bl_info = {
     "name": "History Panel",
     "description": "Brings back the «History» panel with all its history managment including the famous Undo & Redo buttons.",
     "author": "Loïc \"L0Lock\" Dautry",
-    "version": (0, 0, 2),
+    "version": (0, 0, 3),
     "blender": (2, 81, 0),
     "location": "3D Viewport > Sidebar > Tool tab.",
     "warning": "",
@@ -33,6 +33,9 @@ bl_info = {
     "category": "3D View"
 }
 
+# ----------
+# Main class
+# ----------
 class VIEW3D_PT_UndoRedo(bpy.types.Panel):
     bl_label = "History"
     bl_idname = "VIEW3D_PT_undo_redo"
@@ -60,42 +63,36 @@ class VIEW3D_PT_UndoRedo(bpy.types.Panel):
         col.operator("screen.repeat_last", icon='FILE_REFRESH')
         col.operator("screen.repeat_history", text="History...", icon='SORTTIME')
         
+# ----------
 # Prefs Addon
+# ----------
 
+# Updates bl_category by re-gegistering the entire panel's class
 def update_category(self, context):
-    # is_panel = hasattr(bpy.types, 'VIEW3D_PT_UndoRedo')
-
-    # if is_panel:
-    #     try:
-    #         bpy.utils.unregister_class(VIEW3D_PT_UndoRedo)
-    #     except:
-    #         pass
     bpy.utils.unregister_class(VIEW3D_PT_UndoRedo)
     VIEW3D_PT_UndoRedo.bl_category = self.category
     bpy.utils.register_class(VIEW3D_PT_UndoRedo)
 
+# Sets Addon's prefs
 class AddonPrefs(AddonPreferences):
     bl_idname = __name__
-    
-#    PrefTab = StringProperty(
-#        name = "Tab (default: \"Tool\")",
-#        default = "Tooltest"
-#    )
-#    
-#    pref_tab = PrefTab
-#    
-#    def draw(self, context):
-#        layout = self.layout
-#        layout.label(text="In which tab should the History panel be placed?")
-#        layout.prop(self, "PrefTab")
-    category : StringProperty(description="Choose the target tab for the panel.",default="Tool",update=update_category)
-    
+
+    category : StringProperty(
+    	name = "Tab"
+    	description = "In which tab should the History panel be placed in?",
+    	default = "Tool",
+    	update = update_category
+    	)
+
+    # Draw addon's prefs UI
     def draw(self, context):
         layout = self.layout
-        layout.label(text="In which tab should the History panel be placed in?")
+        layout.label(text="Target tab for the panel.")
         layout.prop(self, "category")
 
-# Register
+# ----------
+# Register block
+# ----------
 
 classes = (
     VIEW3D_PT_UndoRedo,
