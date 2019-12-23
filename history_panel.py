@@ -78,7 +78,7 @@ class AddonPrefs(AddonPreferences):
     bl_idname = __name__
 
     category : StringProperty(
-    	name = "Tab"
+    	name = "Tab",
     	description = "In which tab should the History panel be placed in?",
     	default = "Tool",
     	update = update_category
