@@ -16,12 +16,15 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 import bpy
+from bpy.types import Operator, AddonPreferences
+from bpy.props import StringProperty, IntProperty, BoolProperty
+from bpy.utils import register_class
 
 bl_info = {
     "name": "History Panel",
     "description": "Brings back the «History» panel with all its history managment including the famous Undo & Redo buttons.",
-    "author": "Loïc «L0Lock» Dautry",
-    "version": (0, 0, 1),
+    "author": "Loïc \"L0Lock\" Dautry",
+    "version": (0, 0, 3),
     "blender": (2, 81, 0),
     "location": "3D Viewport > Sidebar > Tool tab.",
     "warning": "",
@@ -30,13 +33,16 @@ bl_info = {
     "category": "3D View"
 }
 
-
+# ----------
+# Main class
+# ----------
 class VIEW3D_PT_UndoRedo(bpy.types.Panel):
     bl_label = "History"
     bl_idname = "VIEW3D_PT_undo_redo"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'Tool'
+    bl_category = 'Tool' # 'Tool'
+    bl_options = {'DEFAULT_CLOSED'}
     
     @classmethod
     def poll(self,context):
@@ -56,20 +62,56 @@ class VIEW3D_PT_UndoRedo(bpy.types.Panel):
         col.label(text="Repeat:")
         col.operator("screen.repeat_last", icon='FILE_REFRESH')
         col.operator("screen.repeat_history", text="History...", icon='SORTTIME')
+        
+# ----------
+# Prefs Addon
+# ----------
+
+# Updates bl_category by re-gegistering the entire panel's class
+def update_category(self, context):
+    bpy.utils.unregister_class(VIEW3D_PT_UndoRedo)
+    VIEW3D_PT_UndoRedo.bl_category = self.category
+    bpy.utils.register_class(VIEW3D_PT_UndoRedo)
+
+# Sets Addon's prefs
+class AddonPrefs(AddonPreferences):
+    bl_idname = __name__
+
+    category : StringProperty(
+    	name = "Tab",
+    	description = "In which tab should the History panel be placed in?",
+    	default = "Tool",
+    	update = update_category
+    	)
+
+    # Draw addon's prefs UI
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="Target tab for the panel.")
+        layout.prop(self, "category")
+
+# ----------
+# Register block
+# ----------
 
 classes = (
     VIEW3D_PT_UndoRedo,
+    AddonPrefs,
 )
 
 def register():
-    from bpy.utils import register_class
     for cls in classes:
-        register_class(cls)
+        try:
+            bpy.utils.register_class(cls)
+        except:
+            print(f"{cls.__name__} already registred")
+        
+    # Update Category
+    context = bpy.context
+    prefs = context.preferences.addons[__name__].preferences
+    update_category(prefs, context)
 
 def unregister():
-    from bpy.utils import unregister_class
-    for cls in reversed(classes):
-        unregister_class(cls)
-
-if __name__ == "__main__":
-    register()
+    for cls in classes:
+        if hasattr(bpy.types, cls.__name__):
+            bpy.utils.unregister_class(cls)
