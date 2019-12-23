@@ -16,12 +16,14 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 import bpy
+from bpy.types import Operator, AddonPreferences
+from bpy.props import StringProperty, IntProperty, BoolProperty
 
 bl_info = {
     "name": "History Panel",
     "description": "Brings back the «History» panel with all its history managment including the famous Undo & Redo buttons.",
-    "author": "Loïc «L0Lock» Dautry",
-    "version": (0, 0, 1),
+    "author": "Loïc \"L0Lock\" Dautry",
+    "version": (0, 0, 2),
     "blender": (2, 81, 0),
     "location": "3D Viewport > Sidebar > Tool tab.",
     "warning": "",
@@ -30,13 +32,27 @@ bl_info = {
     "category": "3D View"
 }
 
+class AddonPrefs(AddonPreferences):
+    bl_idname = __name__
+    
+    PrefTab = StringProperty(
+        name = "Tab (default: \"Tool\")",
+        default = "Tooltest"
+    )
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.label(text="In which tab should the History panel be placed?")
+        layout.prop(self, "PrefTab")
+
 
 class VIEW3D_PT_UndoRedo(bpy.types.Panel):
     bl_label = "History"
     bl_idname = "VIEW3D_PT_undo_redo"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'Tool'
+    bl_category = 'PrefTab' # 'Tool'
+    bl_options = {'DEFAULT_CLOSED'}
     
     @classmethod
     def poll(self,context):
@@ -59,6 +75,7 @@ class VIEW3D_PT_UndoRedo(bpy.types.Panel):
 
 classes = (
     VIEW3D_PT_UndoRedo,
+    AddonPrefs,
 )
 
 def register():
